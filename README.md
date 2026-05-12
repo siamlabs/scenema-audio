@@ -395,4 +395,8 @@ Set in `docker-compose.yml` or pass via `docker run -e`:
 
 ## License
 
-MIT License. See [LICENSE](LICENSE) for details.
+**Model weights:** [LTX-2 Community License Agreement](https://github.com/Lightricks/LTX-2/blob/main/LICENSE). The audio diffusion transformer is derived from LTX 2.3's audiovisual model, and its weights are subject to the same license terms.
+
+**Code:** [MIT License](LICENSE). The inference server, chunking pipeline, and all supporting code are MIT licensed.
+
+[Gemma 3 12B](https://ai.google.dev/gemma/terms) (text encoder) is a gated model requiring acceptance of Google's terms of use.
