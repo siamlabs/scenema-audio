@@ -104,14 +104,6 @@ ENABLE_GRADIO=1 GRADIO_SHARE=1 HF_TOKEN=your_token docker compose up
 # Look for the gradio.live URL in the logs
 ```
 
-The Gradio app can also run standalone (useful for development when the API server is already running):
-
-```bash
-pip install gradio
-python app.py
-# UI at http://localhost:7860
-```
-
 ## Prompt Format
 
 ```xml
