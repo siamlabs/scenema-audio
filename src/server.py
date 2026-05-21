@@ -14,11 +14,21 @@ import os
 import uuid
 from contextlib import asynccontextmanager
 from pathlib import Path
+import time
+import torch
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from huggingface_hub import hf_hub_download, snapshot_download
 import uvicorn
+from audio_core.processor import AudioProcessor
+
+os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
+
+if torch.cuda.is_available():
+    torch.cuda.init()
+    torch.zeros((1, 1), device="cuda")
+
 
 logger = logging.getLogger("scenema-audio")
 
@@ -128,11 +138,42 @@ def _download_models():
 processor = AudioProcessor()
 _semaphore = asyncio.Semaphore(1)
 
+def cuda_warmup():
+    import torch
+
+    if torch.cuda.is_available():
+        torch.cuda.init()
+        torch.cuda.empty_cache()
+
+        x = torch.zeros((32, 32), device="cuda")
+        y = x * 2
+        del x, y
+        torch.cuda.synchronize()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     MODEL_DIR.mkdir(parents=True, exist_ok=True)
+
+    
+
+    def cuda_warmup():
+        if torch.cuda.is_available():
+            torch.cuda.init()
+            torch.cuda.empty_cache()
+
+            x = torch.zeros((32, 32), device="cuda")
+            y = x * 2
+            del x, y
+            torch.cuda.synchronize()
+
+            logger.info("CUDA warmup complete")
+
+    cuda_warmup()
+
     _download_models()
+
+    time.sleep(2)
+
     processor.startup()
     logger.info("Scenema Audio ready on port %s", os.environ.get("PORT", "8000"))
     yield
